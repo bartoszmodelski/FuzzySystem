@@ -1,7 +1,6 @@
 package fuzzy
 
 import (
-	"fmt"
 	"log"
 	"regexp"
 	"strconv"
@@ -38,10 +37,6 @@ func identifyNextChunk(data string) (string, int8) {
 	}
 
 	chunk := regexps[id].FindString(data)
-
-	if id == rule {
-		fmt.Println(chunk)
-	}
 
 	return chunk, id
 }

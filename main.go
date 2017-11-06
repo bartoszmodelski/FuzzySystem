@@ -24,5 +24,6 @@ func main() {
 		"big 150 150 50 50" + "\n" +
 		"journey_time = 9" + "\n" +
 		"driving = 65"
-	fuzzy.NewSystem(input)
+	system := fuzzy.NewSystem(input)
+	system.Evaluate()
 }

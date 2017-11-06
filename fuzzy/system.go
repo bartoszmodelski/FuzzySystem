@@ -2,8 +2,6 @@ package fuzzy
 
 import (
 	"strings"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 const (
@@ -39,7 +37,7 @@ func NewSystem(input string) *System {
 					split := strings.Split(data, "=")
 					variableName := strings.TrimSpace(split[0])
 					variableValue := parseInt(strings.TrimSpace(split[1]))
-					system.variables[variableName].assign(variableValue)
+					system.variables[variableName].UpdateValue(float32(variableValue))
 				case rule:
 					buffer := parseRules(data, system.variables)
 					system.rules = append(system.rules, buffer...)
@@ -50,7 +48,38 @@ func NewSystem(input string) *System {
 			data, id = identifyNextChunk(input[offset:])
 		}
 	}
-	spew.Dump(system.rules)
+	//spew.Dump(system.rules)
 
 	return system
+}
+
+// Evaluate - perform one step in a system (one rules activation and assignments)
+func (system *System) Evaluate() {
+	topActivations := make(map[*fRange]xAndArea)
+
+	for i := 0; i < len(system.rules); i++ {
+		variableRange := system.rules[i].affected[0].variableRange
+		value, present := topActivations[variableRange]
+
+		activation := system.rules[i].getXandAreaOfCentroid()
+
+		if present {
+			if value.area < activation.area {
+				//if current activation is stronger than
+				topActivations[variableRange] = activation
+			}
+		} else {
+			topActivations[variableRange] = activation
+		}
+	}
+
+	topActivationsGrouped := make(map[*fVariable]([]*fRange))
+
+	for key := range topActivations {
+		parentVariable := system.variables[key.parentName]
+
+		topActivationsGrouped[parentVariable] = append(topActivationsGrouped[parentVariable],
+			key)
+	}
+
 }

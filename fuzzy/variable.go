@@ -1,23 +1,32 @@
 package fuzzy
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
 
 type fVariable struct {
 	name             string
-	value            int
+	value            float32
 	valueInitialised bool
 	ranges           []*fRange
 }
 
-func (variable *fVariable) assign(value int) {
-	if variable.valueInitialised {
-		panic("Value of " + variable.name + " was already initialised!")
-	}
+func (variable *fVariable) UpdateValue(value float32) {
 	variable.valueInitialised = true
 	variable.value = value
+
+	for i := 0; i < len(variable.ranges); i++ {
+		variable.ranges[i].UpdateValue(value)
+	}
+}
+
+func (variable *fVariable) PrintCentroids() {
+	fmt.Println(variable.name)
+	for i := 0; i < len(variable.ranges); i++ {
+		fmt.Println(variable.ranges[i].getXandAreaOfCenterOfMass(0.5))
+	}
 }
 
 func newFVariable(data string) (*fVariable, string) {
@@ -32,7 +41,7 @@ func newFVariable(data string) (*fVariable, string) {
 	for i := 1; i < len(lines); i++ {
 		trimmed := strings.TrimSpace(lines[i])
 		if len(trimmed) > 0 {
-			variable.ranges = append(variable.ranges, newFRange(trimmed))
+			variable.ranges = append(variable.ranges, newFRange(trimmed, variable.name))
 		}
 	}
 	return variable, variable.name

@@ -17,6 +17,49 @@ type fRule struct {
 	connective int8 //AND or OR constants
 }
 
+func (rule *fRule) getXandAreaOfCentroid() xAndArea {
+	activation := rule.GetActivation()
+
+	if len(rule.affected) > 1 {
+		panic("Processing results with multiple result not implemented yet.")
+	}
+
+	return rule.affected[0].variableRange.getXandAreaOfCenterOfMass(activation)
+}
+
+// GetActivation Returns rule's activation (based on values containe in fVariable objects)
+func (rule *fRule) GetActivation() float32 {
+	variablesCount := len(rule.sources)
+	activations := make([]float32, variablesCount)
+
+	for i := 0; i < variablesCount; i++ {
+		activations[i] = rule.sources[i].variableRange.GetActivation()
+	}
+
+	return rule.minMax(activations)
+}
+
+func (rule *fRule) minMax(activations []float32) float32 {
+	buffer := activations[0]
+	if rule.connective == and { // min, find smallest activation and store in buffer
+		for i := 1; i < len(activations); i++ {
+			if buffer > activations[i] {
+				buffer = activations[i]
+			}
+		}
+	} else if rule.connective == or { // max, find biggest activation and store in buffer
+		for i := 1; i < len(activations); i++ {
+			if buffer < activations[i] {
+				buffer = activations[i]
+			}
+		}
+	} else {
+		panic("Internal error: unrecognized value of connective (should be one of and/or constants).")
+	}
+
+	return buffer
+}
+
 func newFRule(input string, variables map[string]*fVariable) *fRule {
 	// init empty structure representing rule
 	rule := new(fRule)
@@ -52,7 +95,7 @@ func (rule *fRule) parseResultClause(result string, variables map[string]*fVaria
 	}
 
 	for i := 0; i < len(resultParts); i += 3 {
-		rule.sources = append(rule.sources,
+		rule.affected = append(rule.sources,
 			findVariableAndRange(variables, resultParts[i], resultParts[i+1]))
 	}
 }

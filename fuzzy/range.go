@@ -48,7 +48,7 @@ func (variableRange *fRange) GetActivation() float32 {
 
 }
 
-func (variableRange *fRange) getXandAreaOfCenterOfMass(activation float32) xAndArea {
+func (variableRange *fRange) getCentroid(activation float32) centroid {
 	// bases of triangles
 	baseOfLeftTriangle := variableRange.alpha * activation
 	baseOfRightTriangle := variableRange.beta * activation
@@ -69,15 +69,11 @@ func (variableRange *fRange) getXandAreaOfCenterOfMass(activation float32) xAndA
 	centroidOfRightTriangleX := variableRange.rightBoundary - (2.0 / 3.0 * baseOfRightTriangle)
 	centroidOfActivationSquareX := variableRange.leftBoundary + baseOfLeftTriangle + baseOfActivationSquare/2
 
-	// fmt.Printf("\n\nleft triangle centroid x, area: %f, %f \n", centroidOfLeftTriangleX, areaOfLeftTriangle)
-	// fmt.Printf("right triangle centroid x, area: %f, %f \n", centroidOfRightTriangleX, areaOfRightTriangle)
-	// fmt.Printf("square centroid x, area: %f, %f\n", centroidOfActivationSquareX, areaOfActivationSquare)
+	leftCentroidData := centroid{centroidOfLeftTriangleX, areaOfLeftTriangle}
+	rightCentroidData := centroid{centroidOfRightTriangleX, areaOfRightTriangle}
+	middleCentroidData := centroid{centroidOfActivationSquareX, areaOfActivationSquare}
 
-	leftCentroidData := xAndArea{centroidOfLeftTriangleX, areaOfLeftTriangle}
-	rightCentroidData := xAndArea{centroidOfRightTriangleX, areaOfRightTriangle}
-	middleCentroidData := xAndArea{centroidOfActivationSquareX, areaOfActivationSquare}
-
-	centroids := []xAndArea{leftCentroidData, rightCentroidData, middleCentroidData}
+	centroids := []centroid{leftCentroidData, rightCentroidData, middleCentroidData}
 
 	return centroidOfCentroids(centroids)
 }
@@ -106,8 +102,7 @@ func newFRange(data string, parentName string) *fRange {
 	fz.leftBoundary = fz.leftPeak - fz.alpha
 	fz.rightBoundary = fz.rightPeak + fz.beta
 
-	centroid := fz.getXandAreaOfCenterOfMass(1)
-	if centroid.area == 0 {
+	if fz.getCentroid(1).area == 0 {
 		panic("Total area of range cannot equal 0.")
 	}
 

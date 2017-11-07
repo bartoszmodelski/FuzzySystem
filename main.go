@@ -39,9 +39,9 @@ func main() {
 		"medium 200 200 150 150\n" +
 		"high 400 450 150 0\n" +
 		"change_in_current \n" +
-		"reduce 50 50 50 50\n" +
-		"no_change 100 100 50 50\n" +
-		"increase 150 150 50 50\n" +
+		"reduce -50 -50 50 50\n" +
+		"no_change 0 0 50 50\n" +
+		"increase 50 50 50 50\n" +
 		"temperature = 300\n" +
 		"current = 17\n"
 

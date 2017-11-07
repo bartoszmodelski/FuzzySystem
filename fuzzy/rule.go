@@ -17,14 +17,14 @@ type fRule struct {
 	connective int8 //AND or OR constants
 }
 
-func (rule *fRule) getXandAreaOfCentroid() xAndArea {
+func (rule *fRule) getCentroid() centroid {
 	activation := rule.GetActivation()
 
 	if len(rule.affected) > 1 {
 		panic("Processing rules with multiple result not implemented yet.")
 	}
 
-	return rule.affected[0].variableRange.getXandAreaOfCenterOfMass(activation)
+	return rule.affected[0].variableRange.getCentroid(activation)
 }
 
 // GetActivation Returns rule's activation (based on values containe in fVariable objects)

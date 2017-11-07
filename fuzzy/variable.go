@@ -1,7 +1,6 @@
 package fuzzy
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -19,13 +18,6 @@ func (variable *fVariable) UpdateValue(value float32) {
 
 	for i := 0; i < len(variable.ranges); i++ {
 		variable.ranges[i].UpdateValue(value)
-	}
-}
-
-func (variable *fVariable) PrintCentroids() {
-	fmt.Println(variable.name)
-	for i := 0; i < len(variable.ranges); i++ {
-		fmt.Println(variable.ranges[i].getXandAreaOfCenterOfMass(0.5))
 	}
 }
 

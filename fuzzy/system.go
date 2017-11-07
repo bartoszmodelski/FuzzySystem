@@ -3,8 +3,6 @@ package fuzzy
 import (
 	"fmt"
 	"strings"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 const (
@@ -51,17 +49,15 @@ func NewSystem(input string) *System {
 			data, id = identifyNextChunk(input[offset:])
 		}
 	}
-	//spew.Dump(system.rules)
-
 	return system
 }
 
 // Evaluate - perform one step in a system (one rules activation and assignments)
 func (system *System) Evaluate() {
-	topActivationsGrouped := make(map[*fVariable](map[*fRange]xAndArea))
+	topActivationsGrouped := make(map[*fVariable](map[*fRange]centroid))
 
 	for _, rule := range system.rules {
-		topActivationsGrouped[rule.affected[0].variable] = make(map[*fRange]xAndArea)
+		topActivationsGrouped[rule.affected[0].variable] = make(map[*fRange]centroid)
 	}
 
 	for i := 0; i < len(system.rules); i++ {
@@ -69,7 +65,7 @@ func (system *System) Evaluate() {
 		variable := system.variables[variableRange.parentName]
 
 		value, present := topActivationsGrouped[variable][variableRange]
-		centroidData := system.rules[i].getXandAreaOfCentroid()
+		centroidData := system.rules[i].getCentroid()
 
 		if centroidData.area != 0 {
 			// if there is no centroid stored, store current
@@ -84,17 +80,15 @@ func (system *System) Evaluate() {
 		}
 	}
 
-	//spew.Dump(topActivationsGrouped)
-
 	// for every group, calculate final centroid and assign new variable
 	for variable, topActivations := range topActivationsGrouped {
-		centroids := make([]xAndArea, 0, 0)
+		centroids := make([]centroid, 0, 0)
 		for _, centroidData := range topActivations {
 			centroids = append(centroids, centroidData)
 		}
-		spew.Dump(centroids)
 		variable.value = centroidOfCentroids(centroids).x
 		fmt.Printf("Assigned value %f to %s\n", variable.value, variable.name)
+
 	}
 
 }

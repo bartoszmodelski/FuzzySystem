@@ -15,7 +15,7 @@ func parseInt(number string) int {
 	return value
 }
 
-type xAndArea struct {
+type centroid struct {
 	x    float32
 	area float32
 }
@@ -47,7 +47,7 @@ func identifyNextChunk(data string) (string, int8) {
 
 // centroidOfCentroids Function computing main centroid.
 // It takes a number of centroidX, area pairs
-func centroidOfCentroids(centroids []xAndArea) xAndArea {
+func centroidOfCentroids(centroids []centroid) centroid {
 	var sumXbyArea float32
 	var sumArea float32
 	for i := 0; i < len(centroids); i++ {
@@ -56,8 +56,8 @@ func centroidOfCentroids(centroids []xAndArea) xAndArea {
 	}
 
 	if sumArea == 0 {
-		return xAndArea{0, 0}
+		return centroid{0, 0}
 	}
 
-	return xAndArea{sumXbyArea / sumArea, sumArea}
+	return centroid{sumXbyArea / sumArea, sumArea}
 }

@@ -1,7 +1,6 @@
 package fuzzy
 
 import (
-	"fmt"
 	"regexp"
 )
 
@@ -14,8 +13,6 @@ type fRange struct {
 	// used for calculations, can change very iteration
 	value            float32 // props updated by rule (so we avoid circular reference)
 	valueInitialised bool
-	// flush before every iteration
-	BiggestActivation xAndArea
 }
 
 func (variableRange *fRange) getActivationForLeftSlope() float32 {
@@ -72,15 +69,17 @@ func (variableRange *fRange) getXandAreaOfCenterOfMass(activation float32) xAndA
 	centroidOfRightTriangleX := variableRange.rightBoundary - (2.0 / 3.0 * baseOfRightTriangle)
 	centroidOfActivationSquareX := variableRange.leftBoundary + baseOfLeftTriangle + baseOfActivationSquare/2
 
-	fmt.Printf("\n\nleft triangle centroid x, area: %f, %f \n", centroidOfLeftTriangleX, areaOfLeftTriangle)
-	fmt.Printf("right triangle centroid x, area: %f, %f \n", centroidOfRightTriangleX, areaOfRightTriangle)
-	fmt.Printf("square centroid x, area: %f, %f\n", centroidOfActivationSquareX, areaOfActivationSquare)
+	// fmt.Printf("\n\nleft triangle centroid x, area: %f, %f \n", centroidOfLeftTriangleX, areaOfLeftTriangle)
+	// fmt.Printf("right triangle centroid x, area: %f, %f \n", centroidOfRightTriangleX, areaOfRightTriangle)
+	// fmt.Printf("square centroid x, area: %f, %f\n", centroidOfActivationSquareX, areaOfActivationSquare)
 
-	x, area := centroidOfCentroids(centroidOfActivationSquareX, areaOfActivationSquare,
-		centroidOfLeftTriangleX, areaOfLeftTriangle,
-		centroidOfRightTriangleX, areaOfRightTriangle)
+	leftCentroidData := xAndArea{centroidOfLeftTriangleX, areaOfLeftTriangle}
+	rightCentroidData := xAndArea{centroidOfRightTriangleX, areaOfRightTriangle}
+	middleCentroidData := xAndArea{centroidOfActivationSquareX, areaOfActivationSquare}
 
-	return xAndArea{x: x, area: area}
+	centroids := []xAndArea{leftCentroidData, rightCentroidData, middleCentroidData}
+
+	return centroidOfCentroids(centroids)
 }
 
 func xByAreaOverArea(x float32, area float32) float32 {
@@ -106,5 +105,11 @@ func newFRange(data string, parentName string) *fRange {
 	fz.beta = float32(parseInt(parts[4]))
 	fz.leftBoundary = fz.leftPeak - fz.alpha
 	fz.rightBoundary = fz.rightPeak + fz.beta
+
+	centroid := fz.getXandAreaOfCenterOfMass(1)
+	if centroid.area == 0 {
+		panic("Total area of range cannot equal 0.")
+	}
+
 	return fz
 }

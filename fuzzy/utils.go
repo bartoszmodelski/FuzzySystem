@@ -42,24 +42,22 @@ func identifyNextChunk(data string) (string, int8) {
 	}
 
 	chunk := regexps[id].FindString(data)
-
 	return chunk, id
 }
 
 // centroidOfCentroids Function computing main centroid.
 // It takes a number of centroidX, area pairs
-func centroidOfCentroids(params ...float32) (float32, float32) {
-	if len(params)%2 != 0 {
-		panic("Odd number of arguments.")
-	}
-
+func centroidOfCentroids(centroids []xAndArea) xAndArea {
 	var sumXbyArea float32
 	var sumArea float32
-	for i := 0; i < len(params); i += 2 {
-		x := params[i]
-		area := params[i+1]
-		sumXbyArea += x * area
-		sumArea += area
+	for i := 0; i < len(centroids); i++ {
+		sumXbyArea += centroids[i].x * centroids[i].area
+		sumArea += centroids[i].area
 	}
-	return sumXbyArea / sumArea, sumArea
+
+	if sumArea == 0 {
+		return xAndArea{0, 0}
+	}
+
+	return xAndArea{sumXbyArea / sumArea, sumArea}
 }

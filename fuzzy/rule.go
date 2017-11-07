@@ -21,7 +21,7 @@ func (rule *fRule) getXandAreaOfCentroid() xAndArea {
 	activation := rule.GetActivation()
 
 	if len(rule.affected) > 1 {
-		panic("Processing results with multiple result not implemented yet.")
+		panic("Processing rules with multiple result not implemented yet.")
 	}
 
 	return rule.affected[0].variableRange.getXandAreaOfCenterOfMass(activation)
@@ -95,7 +95,7 @@ func (rule *fRule) parseResultClause(result string, variables map[string]*fVaria
 	}
 
 	for i := 0; i < len(resultParts); i += 3 {
-		rule.affected = append(rule.sources,
+		rule.affected = append(rule.affected,
 			findVariableAndRange(variables, resultParts[i], resultParts[i+1]))
 	}
 }

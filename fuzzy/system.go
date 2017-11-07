@@ -1,7 +1,10 @@
 package fuzzy
 
 import (
+	"fmt"
 	"strings"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 const (
@@ -55,31 +58,43 @@ func NewSystem(input string) *System {
 
 // Evaluate - perform one step in a system (one rules activation and assignments)
 func (system *System) Evaluate() {
-	topActivations := make(map[*fRange]xAndArea)
+	topActivationsGrouped := make(map[*fVariable](map[*fRange]xAndArea))
+
+	for _, rule := range system.rules {
+		topActivationsGrouped[rule.affected[0].variable] = make(map[*fRange]xAndArea)
+	}
 
 	for i := 0; i < len(system.rules); i++ {
 		variableRange := system.rules[i].affected[0].variableRange
-		value, present := topActivations[variableRange]
+		variable := system.variables[variableRange.parentName]
 
-		activation := system.rules[i].getXandAreaOfCentroid()
+		value, present := topActivationsGrouped[variable][variableRange]
+		centroidData := system.rules[i].getXandAreaOfCentroid()
 
-		if present {
-			if value.area < activation.area {
-				//if current activation is stronger than
-				topActivations[variableRange] = activation
+		if centroidData.area != 0 {
+			// if there is no centroid stored, store current
+			if !present {
+				topActivationsGrouped[variable][variableRange] = centroidData
 			}
-		} else {
-			topActivations[variableRange] = activation
+
+			// if current centroid represents stronger activation, overwrite stored
+			if value.area < centroidData.area {
+				topActivationsGrouped[variable][variableRange] = centroidData
+			}
 		}
 	}
 
-	topActivationsGrouped := make(map[*fVariable]([]*fRange))
+	//spew.Dump(topActivationsGrouped)
 
-	for key := range topActivations {
-		parentVariable := system.variables[key.parentName]
-
-		topActivationsGrouped[parentVariable] = append(topActivationsGrouped[parentVariable],
-			key)
+	// for every group, calculate final centroid and assign new variable
+	for variable, topActivations := range topActivationsGrouped {
+		centroids := make([]xAndArea, 0, 0)
+		for _, centroidData := range topActivations {
+			centroids = append(centroids, centroidData)
+		}
+		spew.Dump(centroids)
+		variable.value = centroidOfCentroids(centroids).x
+		fmt.Printf("Assigned value %f to %s\n", variable.value, variable.name)
 	}
 
 }

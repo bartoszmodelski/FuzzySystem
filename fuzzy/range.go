@@ -28,7 +28,7 @@ func (variableRange *fRange) UpdateValue(newValue float32) {
 	variableRange.value = newValue
 }
 
-func (variableRange *fRange) GetActivation() float32 {
+func (variableRange *fRange) getActivation() float32 {
 	if !variableRange.valueInitialised {
 		panic("Value for variable with range " + variableRange.name + " not initialised.")
 	}

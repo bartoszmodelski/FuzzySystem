@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	none = iota
-	and  = iota
-	or   = iota
+	single = iota
+	and    = iota
+	or     = iota
 )
 
 type fRule struct {
@@ -18,7 +18,7 @@ type fRule struct {
 }
 
 func (rule *fRule) getCentroid() centroid {
-	activation := rule.GetActivation()
+	activation := rule.getActivation()
 
 	if len(rule.affected) > 1 {
 		panic("Processing rules with multiple result not implemented yet.")
@@ -27,13 +27,12 @@ func (rule *fRule) getCentroid() centroid {
 	return rule.affected[0].variableRange.getCentroid(activation)
 }
 
-// GetActivation Returns rule's activation (based on values containe in fVariable objects)
-func (rule *fRule) GetActivation() float32 {
+func (rule *fRule) getActivation() float32 {
 	variablesCount := len(rule.sources)
 	activations := make([]float32, variablesCount)
 
 	for i := 0; i < variablesCount; i++ {
-		activations[i] = rule.sources[i].variableRange.GetActivation()
+		activations[i] = rule.sources[i].variableRange.getActivation()
 	}
 
 	return rule.minMax(activations)
@@ -53,6 +52,8 @@ func (rule *fRule) minMax(activations []float32) float32 {
 				buffer = activations[i]
 			}
 		}
+	} else if rule.connective == single {
+		//there's just one activation
 	} else {
 		panic("Internal error: unrecognized value of connective (should be one of and/or constants).")
 	}
@@ -107,7 +108,7 @@ func (rule *fRule) parseConditionalClause(conditional string, variables map[stri
 	} else if strings.Contains(conditional, " and ") {
 		rule.connective = and
 	} else {
-		rule.connective = none
+		rule.connective = single
 	}
 
 	conditionalParts := strings.Split(conditional, " ")

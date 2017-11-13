@@ -20,10 +20,12 @@ type System struct {
 
 // NewSystem - construct new fuzzy system
 func NewSystem(input string) *System {
+
 	system := new(System)
 
 	system.variables = make(map[string]*fVariable)
 	system.rules = make([]*fRule, 0, 0)
+	input = strings.Replace(input, ":", "", -1)
 
 	for i := 0; i < 3; i++ {
 		offset := 0
